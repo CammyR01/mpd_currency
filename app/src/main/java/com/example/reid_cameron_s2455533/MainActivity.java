@@ -31,12 +31,16 @@ import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView rawDataDisplay;
     private Button startButton;
     private String result;
     private String url1="";
     private String urlSource="https://www.fx-exchange.com/gbp/rss.xml";
+    private List<CurrencyItem> currencyItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,94 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     // Need separate thread to access the internet resource over network
     // Other neater solutions should be adopted in later iterations.
+
+    //Parse the XML string into a list of CurrencyItem objects
+    private void parseXML(String xml) {
+
+        currencyItems.clear();   //Starting fresh each time
+
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new StringReader(xml));
+
+            int eventType = parser.getEventType();
+
+            boolean insideItem = false;
+            CurrencyItem currentItem = null;
+            String text = "";
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+
+                String tagName = parser.getName();
+
+                switch (eventType) {
+
+                    case XmlPullParser.START_TAG:
+                        if ("item".equalsIgnoreCase(tagName)) {
+                            insideItem = true;
+                            currentItem = new CurrencyItem();
+                        }
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        text = parser.getText();
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        if (insideItem && currentItem != null) {
+
+                            if ("link".equalsIgnoreCase(tagName)) {
+                                String link = text.trim();
+                                int lastSlash = link.lastIndexOf('/');
+                                int dot = link.lastIndexOf('.');
+                                if (lastSlash != -1 && dot != -1 && dot > lastSlash) {
+                                    String code = link.substring(lastSlash + 1, dot);
+                                    currentItem.setCode(code.toUpperCase());
+                                }
+
+                            } else if ("title".equalsIgnoreCase(tagName)) {
+                                String title = text.trim();
+                                currentItem.setTitle(title);
+
+                            } else if ("description".equalsIgnoreCase(tagName)) {
+                                String desc = text.trim();
+                                int eqPos = desc.indexOf('=');
+                                if (eqPos != -1) {
+                                    String rightSide = desc.substring(eqPos + 1).trim();
+                                    String[] parts = rightSide.split(" ");
+                                    if (parts.length > 0) {
+                                        try {
+                                            double rate = Double.parseDouble(parts[0]);
+                                            currentItem.setRate(rate);
+                                        } catch (NumberFormatException e) {
+                                            Log.e("Parser", "Could not parse rate from: " + desc);
+                                        }
+                                    }
+                                }
+
+                            } else if ("pubDate".equalsIgnoreCase(tagName)) {
+                                currentItem.setPublishDate(text.trim());
+
+                            } else if ("item".equalsIgnoreCase(tagName)) {
+                                //Finished one item
+                                currencyItems.add(currentItem);
+                                insideItem = false;
+                                currentItem = null;
+                            }
+                        }
+                        break;
+                }
+
+                eventType = parser.next();
+            }
+
+        } catch (Exception e) {
+            Log.e("Parser", "Error parsing XML", e);
+        }
+    }
+
     private class Task implements Runnable
     {
         private String url;
@@ -72,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
         @Override
         public void run(){
+            result = ""; //Reset before concatenating
             URL aurl;
             URLConnection yc;
             BufferedReader in = null;
@@ -104,25 +197,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             result = result.substring(0, i + 6);
 
             // Now that you have the xml data into result, you can parse it
-            try {
-                XmlPullParserFactory factory =
-                        XmlPullParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                XmlPullParser xpp = factory.newPullParser();
-                xpp.setInput( new StringReader( result ) );
-
-//                YOUR PARSING HERE!!!
-
-
-
-            } catch (XmlPullParserException e) {
-                Log.e("Parsing","EXCEPTION" + e);
-                //throw new RuntimeException(e);
-//            } catch (IOException e) {
-//                Log.e("Parsing","I/O EXCEPTION" + e);
-                //throw new RuntimeException(e);
-            }
-
+            parseXML(result);
 
             // Now update the TextView to display raw XML data
             // Probably not the best way to update TextView
@@ -132,7 +207,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             {
                 public void run() {
                     Log.d("UI thread", "I am the UI thread");
-                    rawDataDisplay.setText(result);
+                    //Testing parse
+                    StringBuilder sb = new StringBuilder();
+                    for (CurrencyItem item : currencyItems) {
+                        sb.append(item.getCode())
+                                .append(" : ")
+                                .append(item.getRate())
+                                .append("\n");
+                    }
+                    rawDataDisplay.setText(sb.toString());
+
                 }
             });
         }

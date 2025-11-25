@@ -38,4 +38,9 @@ public class CurrencyItem {
     public void setPublishDate(String publishDate) {
         this.publishDate = publishDate;
     }
+
+    @Override
+    public String toString() {
+        return code + " : " + rate;
+    }
 }
