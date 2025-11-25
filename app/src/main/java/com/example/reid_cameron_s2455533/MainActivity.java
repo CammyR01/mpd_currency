@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,25 +36,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
-    private TextView rawDataDisplay;
+
     private Button startButton;
     private String result;
     private String url1="";
     private String urlSource="https://www.fx-exchange.com/gbp/rss.xml";
     private List<CurrencyItem> currencyItems = new ArrayList<>();
+    private ListView currencyListView;
+    private CurrencyAdapter currencyAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Set up the raw links to the graphical components
-        rawDataDisplay = (TextView)findViewById(R.id.rawDataDisplay);
-        startButton = (Button)findViewById(R.id.startButton);
+
+        startButton = findViewById(R.id.startButton);
+        currencyListView = findViewById(R.id.currencyListView);
+
         startButton.setOnClickListener(this);
 
-        // More Code goes here
-
+        //Create the adapter and attach it to the ListView
+        currencyAdapter = new CurrencyAdapter(this, currencyItems);
+        currencyListView.setAdapter(currencyAdapter);
     }
+
 
     public void onClick(View aview)
     {
@@ -199,23 +205,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             // Now that you have the xml data into result, you can parse it
             parseXML(result);
 
-            // Now update the TextView to display raw XML data
-            // Probably not the best way to update TextView
-            // but we are just getting started !
-
             MainActivity.this.runOnUiThread(new Runnable()
             {
                 public void run() {
-                    Log.d("UI thread", "I am the UI thread");
-                    //Testing parse
-                    StringBuilder sb = new StringBuilder();
-                    for (CurrencyItem item : currencyItems) {
-                        sb.append(item.getCode())
-                                .append(" : ")
-                                .append(item.getRate())
-                                .append("\n");
-                    }
-                    rawDataDisplay.setText(sb.toString());
+                    currencyAdapter.notifyDataSetChanged();
 
                 }
             });
