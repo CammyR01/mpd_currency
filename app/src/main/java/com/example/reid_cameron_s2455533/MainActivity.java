@@ -12,6 +12,7 @@
 
 package com.example.reid_cameron_s2455533;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -55,9 +56,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         startButton.setOnClickListener(this);
 
+        //Automatically fetches exchange rates when app opened
+        startProgress();
+
         //Create the adapter and attach it to the ListView
         currencyAdapter = new CurrencyAdapter(this, currencyItems);
         currencyListView.setAdapter(currencyAdapter);
+
+        currencyListView.setOnItemClickListener((parent, view, position, id) -> {
+            CurrencyItem item = currencyItems.get(position);   // clicked item
+
+            Intent intent = new Intent(MainActivity.this, ConversionActivity.class);
+            intent.putExtra("code", item.getCode());
+            intent.putExtra("rate", item.getRate());
+            intent.putExtra("title", item.getTitle());
+
+            startActivity(intent);
+        });
+
     }
 
 
