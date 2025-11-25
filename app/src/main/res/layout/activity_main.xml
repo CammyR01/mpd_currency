@@ -9,7 +9,7 @@
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Press to get exchange rates" />
+        android:text="Refresh exchange rates" />
 
     <ListView
         android:id="@+id/currencyListView"

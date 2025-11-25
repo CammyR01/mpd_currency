@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Reid_Cameron_S2455533"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ConversionActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
