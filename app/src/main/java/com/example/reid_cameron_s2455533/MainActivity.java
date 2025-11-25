@@ -111,15 +111,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 XmlPullParser xpp = factory.newPullParser();
                 xpp.setInput( new StringReader( result ) );
 
-                YOUR PARSING HERE!!!
+//                YOUR PARSING HERE!!!
 
 
 
             } catch (XmlPullParserException e) {
                 Log.e("Parsing","EXCEPTION" + e);
                 //throw new RuntimeException(e);
-            } catch (IOException e) {
-                Log.e("Parsing","I/O EXCEPTION" + e);
+//            } catch (IOException e) {
+//                Log.e("Parsing","I/O EXCEPTION" + e);
                 //throw new RuntimeException(e);
             }
 
