@@ -255,11 +255,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
 
             //Clean up any leading garbage characters
-            int i = result.indexOf("<?"); //initial tag
+            int i = result.indexOf("<?"); //Initial tag
             result = result.substring(i);
 
             //Clean up any trailing garbage at the end of the file
-            i = result.indexOf("</rss>"); //final tag
+            i = result.indexOf("</rss>"); //Final tag
             result = result.substring(0, i + 6);
 
             //Now that you have the xml data into result, you can parse it
