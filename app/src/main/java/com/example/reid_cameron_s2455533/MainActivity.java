@@ -21,6 +21,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.EditText;
+import android.text.Editable;
+import android.text.TextWatcher;
+
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -43,8 +47,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private String url1="";
     private String urlSource="https://www.fx-exchange.com/gbp/rss.xml";
     private List<CurrencyItem> currencyItems = new ArrayList<>();
+    private List<CurrencyItem> allCurrencyItems = new ArrayList<>();
     private ListView currencyListView;
     private CurrencyAdapter currencyAdapter;
+    private EditText searchEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         startButton = findViewById(R.id.startButton);
         currencyListView = findViewById(R.id.currencyListView);
+        searchEditText = findViewById(R.id.edtSearch);
 
         startButton.setOnClickListener(this);
 
@@ -74,6 +81,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             startActivity(intent);
         });
 
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterCurrencies(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
 
@@ -94,7 +114,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     //Parse the XML string into a list of CurrencyItem objects
     private void parseXML(String xml) {
 
-        currencyItems.clear();   //Starting fresh each time
+        //Starting fresh each time
+        currencyItems.clear();
+        allCurrencyItems.clear();
 
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -139,6 +161,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                             } else if ("title".equalsIgnoreCase(tagName)) {
                                 String title = text.trim();
+
+                                //Removes "British Pound Sterling(GBP)/"
+                                if (title.contains("/")) {
+                                    title = title.substring(title.indexOf("/") + 1).trim();
+                                }
+
                                 currentItem.setTitle(title);
 
                             } else if ("description".equalsIgnoreCase(tagName)) {
@@ -173,10 +201,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 eventType = parser.next();
             }
 
+            //Filling additional list
+            allCurrencyItems.addAll(currencyItems);
+
         } catch (Exception e) {
             Log.e("Parser", "Error parsing XML", e);
         }
     }
+
+    private void filterCurrencies(String query) {
+        currencyItems.clear();
+
+        if (query == null || query.trim().isEmpty()) {
+            //No search text shows all items
+            currencyItems.addAll(allCurrencyItems);
+        } else {
+            String lower = query.toLowerCase();
+
+            for (CurrencyItem item : allCurrencyItems) {
+                //Matches on rate code OR title
+                if (item.getCode().toLowerCase().contains(lower) ||
+                        (item.getTitle() != null && item.getTitle().toLowerCase().contains(lower))) {
+                    currencyItems.add(item);
+                }
+            }
+        }
+
+        currencyAdapter.notifyDataSetChanged();
+    }
+
 
     private class Task implements Runnable
     {

@@ -7,9 +7,16 @@
 
     <Button
         android:id="@+id/startButton"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Refresh exchange rates" />
+
+    <EditText
+        android:id="@+id/edtSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search by code or name (e.g. USD, Dollar)"
+        android:inputType="text" />
 
     <ListView
         android:id="@+id/currencyListView"
