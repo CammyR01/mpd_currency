@@ -6,6 +6,8 @@ package com.example.reid_cameron_s2455533;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -96,12 +98,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     public void startProgress()
     {
-        // Run network access on a separate thread;
+        //Run network access on a separate thread;
         new Thread(new Task(urlSource)).start();
-    } //
-
-    // Need separate thread to access the internet resource over network
-    // Other neater solutions should be adopted in later iterations.
+    }
 
     //Parse the XML string into a list of CurrencyItem objects
     private void parseXML(String xml) {
@@ -263,14 +262,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             i = result.indexOf("</rss>"); //final tag
             result = result.substring(0, i + 6);
 
-            // Now that you have the xml data into result, you can parse it
+            //Now that you have the xml data into result, you can parse it
             parseXML(result);
 
-            MainActivity.this.runOnUiThread(new Runnable()
-            {
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            mainHandler.post(new Runnable() {
+                @Override
                 public void run() {
                     currencyAdapter.notifyDataSetChanged();
-
                 }
             });
         }
