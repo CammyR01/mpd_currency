@@ -4,7 +4,10 @@
 
 package com.example.reid_cameron_s2455533;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.widget.EditText;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.Toast;
 
 
 import org.xmlpull.v1.XmlPullParser;
@@ -98,9 +102,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         startProgress();
     }
 
-    public void startProgress()
-    {
-        //Run network access on a separate thread;
+    public void startProgress() {
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "No internet connection available.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //Run network access on separate thread
         new Thread(new Task(urlSource)).start();
     }
 
@@ -228,6 +236,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         currencyAdapter.notifyDataSetChanged();
     }
 
+    //Error handling for no internet connection
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+
     //Runnable class used to fetch the XML data from the RSS URL on a background thread
     private class Task implements Runnable
     {
@@ -259,6 +276,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
             catch (IOException ae) {
                 Log.e("MyTask", "ioexception");
+
+                //Run on UI thread to send a message
+                MainActivity.this.runOnUiThread(() ->
+                        Toast.makeText(MainActivity.this,
+                                "Error fetching data. Check your internet connection.",
+                                Toast.LENGTH_LONG).show()
+                );
+
+                return; // Stop processing to avoid crashing
             }
 
             //Clean up any leading garbage characters
