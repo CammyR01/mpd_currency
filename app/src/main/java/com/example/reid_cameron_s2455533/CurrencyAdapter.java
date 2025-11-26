@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.graphics.Color;
 
 import java.util.List;
 
@@ -31,9 +32,25 @@ public class CurrencyAdapter extends ArrayAdapter<CurrencyItem> {
             TextView rateView = row.findViewById(R.id.rateTextView);
             TextView titleView = row.findViewById(R.id.titleTextView);
 
+            double rate = item.getRate();
+
             codeView.setText(item.getCode());
             rateView.setText(String.valueOf(item.getRate()));
             titleView.setText(item.getTitle());
+
+            //Colour coding the exchange rates
+            if (rate < 1.0) {
+                rateView.setTextColor(Color.parseColor("#2979FF")); //Blue = very strong
+            }
+            else if (rate < 5.0) {
+                rateView.setTextColor(Color.parseColor("#2E7D32")); //Green = strong
+            }
+            else if (rate < 20.0) {
+                rateView.setTextColor(Color.parseColor("#F9A825")); //Amber = okay
+            }
+            else {
+                rateView.setTextColor(Color.parseColor("#C62828")); //Red = poor
+            }
         }
 
         return row;
