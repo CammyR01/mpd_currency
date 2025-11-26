@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+//Class used to handle currency conversion using user input
 public class ConversionActivity extends AppCompatActivity {
 
     private TextView txtDirection, txtResult;
@@ -23,13 +24,14 @@ public class ConversionActivity extends AppCompatActivity {
 
     private String code;
     private double rate;
-    private boolean gbpToOther = true;
+    private boolean gbpToOther = true; //Default direction is GBP to selected currency
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversion);
 
+        //Getting the users selected currency and corresponding exchange rate
         code = getIntent().getStringExtra("code");
         rate = getIntent().getDoubleExtra("rate", 0.0);
 
@@ -50,6 +52,7 @@ public class ConversionActivity extends AppCompatActivity {
         });
     }
 
+    //Updates the label to show which conversion direction is selected
     private void updateDirectionLabel() {
         if (gbpToOther) {
             txtDirection.setText("GBP → " + code);
@@ -58,6 +61,7 @@ public class ConversionActivity extends AppCompatActivity {
         }
     }
 
+    //Conversion calculation
     private void doConversion() {
         String input = editAmount.getText().toString().trim();
         if (input.isEmpty()) {

@@ -9,8 +9,9 @@ public class CurrencyItem {
     private String code; //Currency code - "GPB", "USD"
     private double rate; //Exchange rate
     private String title; //Full title
-    private String publishDate; //Date the rate was published
+    private String publishDate; //Date the currencies exchange rate was last updated
 
+    //Getters and setters
     public String getCode() {
         return code;
     }
@@ -43,8 +44,9 @@ public class CurrencyItem {
         this.publishDate = publishDate;
     }
 
-    @Override
-    public String toString() {
-        return code + " : " + rate;
-    }
+//    //Testing
+//    @Override
+//    public String toString() {
+//        return code + " : " + rate;
+//    }
 }

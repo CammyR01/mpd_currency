@@ -34,6 +34,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+//All currencies page
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private Button startButton;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         currencyAdapter = new CurrencyAdapter(this, currencyItems);
         currencyListView.setAdapter(currencyAdapter);
 
+        //Enable the user to select a currency for conversion
         currencyListView.setOnItemClickListener((parent, view, position, id) -> {
             CurrencyItem item = currencyItems.get(position);   // clicked item
 
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             startActivity(intent);
         });
 
+        //Checking for changes in search bar text
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -89,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
         });
     }
-
 
     public void onClick(View aview)
     {
@@ -109,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         currencyItems.clear();
         allCurrencyItems.clear();
 
+        //Try catch for PullParser
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -127,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                 switch (eventType) {
 
+                    //Start tag
                     case XmlPullParser.START_TAG:
                         if ("item".equalsIgnoreCase(tagName)) {
                             insideItem = true;
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                         text = parser.getText();
                         break;
 
+                        //End tag
                     case XmlPullParser.END_TAG:
                         if (insideItem && currentItem != null) {
 
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                             } else if ("title".equalsIgnoreCase(tagName)) {
                                 String title = text.trim();
 
-                                //Removes "British Pound Sterling(GBP)/"
+                                //Removes "British Pound Sterling(GBP)/" from title
                                 if (title.contains("/")) {
                                     title = title.substring(title.indexOf("/") + 1).trim();
                                 }
@@ -195,11 +200,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             //Filling additional list
             allCurrencyItems.addAll(currencyItems);
 
+            //Error handling
         } catch (Exception e) {
             Log.e("Parser", "Error parsing XML", e);
         }
     }
 
+    //Search bar functionality
     private void filterCurrencies(String query) {
         currencyItems.clear();
 
@@ -221,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         currencyAdapter.notifyDataSetChanged();
     }
 
-
+    //Runnable class used to fetch the XML data from the RSS URL on a background thread
     private class Task implements Runnable
     {
         private String url;

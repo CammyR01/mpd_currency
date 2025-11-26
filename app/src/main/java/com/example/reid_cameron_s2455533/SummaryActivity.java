@@ -24,10 +24,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+//Summary page - shows Euro, USD, and JPY
 public class SummaryActivity extends AppCompatActivity {
 
-    private static final String urlSource = "https://www.fx-exchange.com/gbp/rss.xml";
-
+    private String urlSource = "https://www.fx-exchange.com/gbp/rss.xml";
     private TextView txtLastUpdated;
     private TextView txtUsd;
     private TextView txtEur;
@@ -49,6 +49,7 @@ public class SummaryActivity extends AppCompatActivity {
         txtJpy = findViewById(R.id.txtJpy);
         btnViewAll = findViewById(R.id.btnViewAll);
 
+        //Sends user to MainActivity (all currencies page)
         btnViewAll.setOnClickListener(v -> {
             Intent intent = new Intent(SummaryActivity.this, MainActivity.class);
             startActivity(intent);
@@ -62,6 +63,7 @@ public class SummaryActivity extends AppCompatActivity {
         new Thread(new Task(urlSource)).start();
     }
 
+    //Runnable class used to fetch the XML data from the RSS URL on a background thread
     private class Task implements Runnable {
         private final String url;
 
@@ -71,7 +73,7 @@ public class SummaryActivity extends AppCompatActivity {
 
         @Override
         public void run() {
-            result = "";
+            result = ""; //Reset before concatenating
             URL aurl;
             URLConnection yc;
             BufferedReader in = null;
@@ -100,11 +102,14 @@ public class SummaryActivity extends AppCompatActivity {
                 result = result.substring(0, i + 6);
             }
 
+            //Now that you have the xml data into result, you can parse it
             parseXML(result);
 
             runOnUiThread(() -> {
+                //Updating label to show date and time exchange rates were last updated on RSS feed
                 txtLastUpdated.setText("Last updated: " + lastBuildDate);
 
+                //Fetching summary currencies
                 CurrencyItem usd = findByCode("USD");
                 CurrencyItem eur = findByCode("EUR");
                 CurrencyItem jpy = findByCode("JPY");
@@ -125,8 +130,13 @@ public class SummaryActivity extends AppCompatActivity {
         }
     }
 
+    //Parse the XML string into a list of CurrencyItem objects
     private void parseXML(String xml) {
+
+        //Starting fresh each time
         currencyItems.clear();
+
+        //Try catch for PullParser
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -142,6 +152,7 @@ public class SummaryActivity extends AppCompatActivity {
                 String tagName = parser.getName();
 
                 switch (eventType) {
+                    //Start tag
                     case XmlPullParser.START_TAG:
                         if ("item".equalsIgnoreCase(tagName)) {
                             insideItem = true;
@@ -153,6 +164,7 @@ public class SummaryActivity extends AppCompatActivity {
                         text = parser.getText();
                         break;
 
+                        //End tag
                     case XmlPullParser.END_TAG:
                         if ("lastBuildDate".equalsIgnoreCase(tagName)) {
                             lastBuildDate = text.trim();
@@ -192,6 +204,7 @@ public class SummaryActivity extends AppCompatActivity {
                                 currentItem.setPublishDate(text.trim());
 
                             } else if ("item".equalsIgnoreCase(tagName)) {
+                                //Finished one item
                                 currencyItems.add(currentItem);
                                 insideItem = false;
                                 currentItem = null;
@@ -202,6 +215,7 @@ public class SummaryActivity extends AppCompatActivity {
 
                 eventType = parser.next();
             }
+            //Error handling
         } catch (Exception e) {
             Log.e("SummaryParser", "Error parsing XML", e);
         }
@@ -216,6 +230,7 @@ public class SummaryActivity extends AppCompatActivity {
         return null;
     }
 
+    //Enables user to select a currency on summary page for conversion
     private void openConversion(CurrencyItem item) {
         Intent intent = new Intent(SummaryActivity.this, ConversionActivity.class);
         intent.putExtra("code", item.getCode());

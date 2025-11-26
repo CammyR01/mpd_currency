@@ -14,8 +14,10 @@ import android.graphics.Color;
 
 import java.util.List;
 
+//Custom ArrayAdapter used to display each currency in the ListView
 public class CurrencyAdapter extends ArrayAdapter<CurrencyItem> {
 
+    //Used to convert the row_currency.xml layout into actual View objects for the ListView
     private final LayoutInflater inflater;
 
     public CurrencyAdapter(Context context, List<CurrencyItem> items) {
@@ -23,6 +25,7 @@ public class CurrencyAdapter extends ArrayAdapter<CurrencyItem> {
         inflater = LayoutInflater.from(context);
     }
 
+    //Populating the list with currencies
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
