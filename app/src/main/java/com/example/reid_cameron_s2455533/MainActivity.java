@@ -1,14 +1,6 @@
-/*  Starter project for Mobile Platform Development - 1st diet 25/26
-    You should use this project as the starting point for your assignment.
-    This project simply reads the data from the required URL and displays the
-    raw data in a TextField
-*/
-
-//
 // Name                 Cameron Reid
 // Student ID           S2455533
 // Programme of Study   Software Development
-//
 
 package com.example.reid_cameron_s2455533;
 

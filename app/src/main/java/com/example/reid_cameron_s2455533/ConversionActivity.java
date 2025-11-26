@@ -1,3 +1,7 @@
+// Name                 Cameron Reid
+// Student ID           S2455533
+// Programme of Study   Software Development
+
 package com.example.reid_cameron_s2455533;
 
 import android.os.Bundle;
